@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Duel.X AI design tokens — see spec section 5.1 */
+:root {
+  --ink: #080b12;
+  --surface: #111725;
+  --text: #f4f7fb;
+  --text-muted: #a5b0c2;
+  --lime: #c6ff4d;
+  --violet: #8b72ff;
+  --cyan: #55d9ff;
+  --border: rgb(244 247 251 / 0.1);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-lime: var(--lime);
+  --color-violet: var(--violet);
+  --color-cyan: var(--cyan);
+  --color-line: var(--border);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
