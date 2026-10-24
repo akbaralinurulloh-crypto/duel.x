@@ -6,7 +6,7 @@ import type { Dict } from "@/lib/i18n/dictionaries";
 // friendly feedback.
 
 export const MAX_CONTENT_LENGTH = 20000;
-export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+export const MAX_FILE_BYTES = 25 * 1024 * 1024;
 
 export const FILE_TYPES: Record<string, string> = {
   pdf: "application/pdf",

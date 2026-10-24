@@ -204,7 +204,7 @@ export const en = {
     answer: "Your answer",
     answerHint: "Up to {max} characters.",
     attachment: "Attachment (optional)",
-    fileHint: "PDF, TXT, MD, CSV, JSON, ZIP, PNG or JPG, up to 10 MB.",
+    fileHint: "PDF, TXT, MD, CSV, JSON, ZIP, PNG or JPG, up to 25 MB.",
     versionNote: "Each submission is saved as a new version and cannot be edited afterwards.",
     submit: "Submit",
     submitting: "Submitting…",
@@ -212,7 +212,7 @@ export const en = {
     uploadFailed:
       "The file could not be uploaded. Submissions may be closed, or the file was rejected.",
     fileEmpty: "The selected file is empty.",
-    fileTooBig: "The file is larger than 10 MB.",
+    fileTooBig: "The file is larger than 25 MB.",
     fileType: "This file type is not allowed. Allowed: {hint}",
     writeAnswer: "Write your answer.",
     tooLong: "Your answer is too long.",

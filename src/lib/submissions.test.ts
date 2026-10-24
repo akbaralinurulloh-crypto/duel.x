@@ -20,7 +20,7 @@ describe("validateFile", () => {
   });
   it("rejects empty, oversized and unknown types", () => {
     expect(validateFile({ name: "a.pdf", size: 0 }, d)).toMatch(/empty/);
-    expect(validateFile({ name: "a.pdf", size: MAX_FILE_BYTES + 1 }, d)).toMatch(/10 MB/);
+    expect(validateFile({ name: "a.pdf", size: MAX_FILE_BYTES + 1 }, d)).toMatch(/25 MB/);
     expect(validateFile({ name: "run.exe", size: 10 }, d)).toMatch(/not allowed/);
     expect(validateFile({ name: "noext", size: 10 }, d)).toMatch(/not allowed/);
     expect(validateFile({ name: "x.constructor", size: 10 }, d)).toMatch(/not allowed/);
