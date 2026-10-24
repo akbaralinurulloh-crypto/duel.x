@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { login } from "@/app/auth/actions";
+import { GoogleButton } from "@/components/auth/google-button";
 import { Field, FormAlert, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
 import { useI18n } from "@/lib/i18n/client";
@@ -11,6 +12,8 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
   const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(login, {});
   return (
+    <div className="flex flex-col gap-4">
+    <GoogleButton next={next} />
     <form action={action} className="flex flex-col gap-4" noValidate>
       {notice && !state.error ? (
         <p role="status" className="rounded-md border border-line px-3 py-2 text-sm text-muted">
@@ -44,5 +47,6 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
         </Link>
       </div>
     </form>
+    </div>
   );
 }

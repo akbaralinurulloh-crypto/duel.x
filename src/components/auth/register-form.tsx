@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { register } from "@/app/auth/actions";
+import { GoogleButton } from "@/components/auth/google-button";
 import { Field, FormAlert, SelectField, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
 import { useI18n } from "@/lib/i18n/client";
@@ -17,6 +18,8 @@ export function RegisterForm({ categories }: { categories: CategoryOption[] }) {
   const e = state.fieldErrors ?? {};
 
   return (
+    <div className="flex flex-col gap-4">
+    <GoogleButton next="/dashboard" />
     <form action={action} className="flex flex-col gap-4" noValidate>
       <FormAlert state={state} />
       <Field
@@ -66,5 +69,6 @@ export function RegisterForm({ categories }: { categories: CategoryOption[] }) {
         </Link>
       </p>
     </form>
+    </div>
   );
 }
