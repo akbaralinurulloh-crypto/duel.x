@@ -1,35 +1,27 @@
 import { z } from "zod";
+import type { Dict } from "@/lib/i18n/dictionaries";
 
-export const REQUEST_TYPES = {
+export const REQUEST_TYPE_KEYS = ["sponsor_challenge", "talent_access", "other"] as const;
+export type RequestType = (typeof REQUEST_TYPE_KEYS)[number];
+
+// English labels for the operator-only admin area. Public text: d.companies.types.
+export const REQUEST_TYPES: Record<RequestType, string> = {
   sponsor_challenge: "Sponsor or run a challenge",
   talent_access: "Discover talent",
   other: "Something else",
-} as const;
+};
 
-export type RequestType = keyof typeof REQUEST_TYPES;
-
+// Messages are dictionary keys (d.validation), translated by fieldErrors().
 export const companyRequestSchema = z.object({
-  companyName: z.string().trim().min(2, "Enter the company name.").max(120, "Company name is too long."),
-  contactName: z.string().trim().min(2, "Enter your name.").max(120, "Name is too long."),
-  contactEmail: z.string().trim().toLowerCase().pipe(z.email("Enter a valid email address.")),
-  requestType: z.enum(Object.keys(REQUEST_TYPES) as [RequestType, ...RequestType[]], {
-    error: "Choose what you need.",
-  }),
-  message: z
-    .string()
-    .trim()
-    .min(10, "Tell us a little more (at least 10 characters).")
-    .max(2000, "Message must be at most 2000 characters."),
+  companyName: z.string().trim().min(2, "company_required").max(120, "company_max"),
+  contactName: z.string().trim().min(2, "contact_required").max(120, "contact_max"),
+  contactEmail: z.string().trim().toLowerCase().pipe(z.email("email_invalid")),
+  requestType: z.enum(REQUEST_TYPE_KEYS, { error: "request_type_required" }),
+  message: z.string().trim().min(10, "message_min").max(2000, "message_max"),
 });
 
-export const COMPANY_GENERIC_ERROR = "Could not send your request. Please try again.";
-
-export function companyErrorMessage(message: string | undefined): string {
-  if (message?.includes("rate_limited")) {
-    return "Too many requests from this email. Please try again later.";
-  }
-  if (message?.includes("invalid_request")) {
-    return "Please check your details and try again.";
-  }
-  return COMPANY_GENERIC_ERROR;
+export function companyErrorMessage(message: string | undefined, d: Dict): string {
+  if (message?.includes("rate_limited")) return d.companies.rateLimited;
+  if (message?.includes("invalid_request")) return d.companies.invalidRequest;
+  return d.companies.generic;
 }

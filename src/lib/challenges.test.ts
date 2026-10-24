@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
-  JOIN_GENERIC_ERROR,
   catalogHref,
   descriptionParagraphs,
   formatUtc,
@@ -9,6 +9,8 @@ import {
   parseCatalogParams,
   statusLabel,
 } from "./challenges";
+
+const d = getDictionary("en");
 
 describe("parseCatalogParams", () => {
   it("accepts valid filters", () => {
@@ -66,13 +68,13 @@ describe("catalogHref", () => {
 
 describe("labels and formatting", () => {
   it("maps statuses to reader-facing words", () => {
-    expect(statusLabel("published")).toBe("Upcoming");
-    expect(statusLabel("active")).toBe("Open");
-    expect(statusLabel("weird")).toBe("weird");
+    expect(statusLabel("published", d)).toBe("Upcoming");
+    expect(statusLabel("active", d)).toBe("Open");
+    expect(statusLabel("weird", d)).toBe("weird");
   });
 
   it("formats dates in UTC regardless of the machine zone", () => {
-    expect(formatUtc("2026-11-01T09:30:00Z")).toBe("1 Nov 2026, 09:30 UTC");
+    expect(formatUtc("2026-11-01T09:30:00Z", "en")).toBe("1 Nov 2026, 09:30 UTC");
   });
 
   it("keeps only non-empty string instruction steps", () => {
@@ -92,14 +94,14 @@ describe("labels and formatting", () => {
 
 describe("joinErrorMessage", () => {
   it("translates each code raised by join_challenge()", () => {
-    expect(joinErrorMessage("challenge_full")).toMatch(/full/);
-    expect(joinErrorMessage("challenge_not_open")).toMatch(/not open/);
-    expect(joinErrorMessage("not_authenticated")).toMatch(/Log in/);
-    expect(joinErrorMessage("category_inactive")).toMatch(/category/);
+    expect(joinErrorMessage("challenge_full", d)).toMatch(/full/);
+    expect(joinErrorMessage("challenge_not_open", d)).toMatch(/not open/);
+    expect(joinErrorMessage("not_authenticated", d)).toMatch(/Log in/);
+    expect(joinErrorMessage("category_inactive", d)).toMatch(/category/);
   });
 
   it("hides anything unexpected", () => {
-    expect(joinErrorMessage("pg: relation does not exist")).toBe(JOIN_GENERIC_ERROR);
-    expect(joinErrorMessage(undefined)).toBe(JOIN_GENERIC_ERROR);
+    expect(joinErrorMessage("pg: relation does not exist", d)).toBe(d.joinErrors.generic);
+    expect(joinErrorMessage(undefined, d)).toBe(d.joinErrors.generic);
   });
 });

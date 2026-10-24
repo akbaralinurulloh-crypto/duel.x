@@ -3,13 +3,14 @@
 import { useActionState } from "react";
 import { FormAlert, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 
 /** A button-only form for one server action, with inline success/error. */
 export function ActionForm({
   action,
   hidden,
   label,
-  pendingLabel = "Working…",
+  pendingLabel,
   confirmLabel,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
@@ -18,6 +19,7 @@ export function ActionForm({
   pendingLabel?: string;
   confirmLabel?: string;
 }) {
+  const { d } = useI18n();
   const [state, formAction] = useActionState<FormState, FormData>(action, {});
   return (
     <form action={formAction} className="flex flex-col gap-2">
@@ -32,7 +34,7 @@ export function ActionForm({
         </label>
       ) : null}
       <div>
-        <SubmitButton pendingLabel={pendingLabel}>{label}</SubmitButton>
+        <SubmitButton pendingLabel={pendingLabel ?? d.common.pending}>{label}</SubmitButton>
       </div>
     </form>
   );

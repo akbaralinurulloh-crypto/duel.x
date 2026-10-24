@@ -1,4 +1,6 @@
 // Pure helpers for challenges: types, filter parsing, labels, formatting.
+import { fmt, formatUtc } from "@/lib/i18n/config";
+import type { Dict } from "@/lib/i18n/dictionaries";
 
 export const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
@@ -10,12 +12,6 @@ export const STATUS_FILTERS = {
   finished: ["closed", "under_review", "completed"],
 } as const;
 export type StatusFilter = keyof typeof STATUS_FILTERS;
-
-export const STATUS_FILTER_LABELS: Record<StatusFilter, string> = {
-  open: "Open now",
-  upcoming: "Upcoming",
-  finished: "Finished",
-};
 
 export const PAGE_SIZE = 12;
 const MAX_PAGE = 1000;
@@ -87,43 +83,40 @@ export type ChallengeDetail = ChallengeSummary & {
   max_submissions: number;
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft",
-  published: "Upcoming",
-  active: "Open",
-  closed: "Closed",
-  under_review: "Under review",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
-export function statusLabel(status: string): string {
-  return STATUS_LABELS[status] ?? status;
+export function statusLabel(status: string, d: Dict): string {
+  return Object.hasOwn(d.statuses, status) ? d.statuses[status as keyof Dict["statuses"]] : status;
 }
 
-export function difficultyLabel(difficulty: string): string {
-  return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+export function difficultyLabel(difficulty: string, d: Dict): string {
+  return Object.hasOwn(d.difficulties, difficulty)
+    ? d.difficulties[difficulty as keyof Dict["difficulties"]]
+    : difficulty;
 }
 
-const EVALUATION_LABELS: Record<string, string> = {
-  automated: "Automated checks",
-  rubric: "Scored against a rubric",
-  hybrid: "Automated checks and rubric",
-};
-
-export function evaluationLabel(method: string): string {
-  return EVALUATION_LABELS[method] ?? method;
+export function evaluationLabel(method: string, d: Dict): string {
+  return Object.hasOwn(d.evaluation, method)
+    ? d.evaluation[method as keyof Dict["evaluation"]]
+    : method;
 }
 
-/** Fixed-zone formatting, so server and client always agree. */
-export function formatUtc(iso: string): string {
-  const text = new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(new Date(iso));
-  return `${text} UTC`;
+/** Category name/description in the visitor's language (database text as fallback). */
+export function localizedCategory(
+  d: Dict,
+  category: { slug: string; name: string; description?: string | null },
+): { name: string; description: string | null } {
+  const own = Object.hasOwn(d.categories, category.slug) ? d.categories[category.slug] : null;
+  return {
+    name: own?.name ?? category.name,
+    description: own?.description ?? category.description ?? null,
+  };
 }
+
+/** "1 challenge" / "5 challenges" (languages without plurals use the same text). */
+export function challengeCount(d: Dict, n: number): string {
+  return fmt(n === 1 ? d.common.challengeOne : d.common.challengeOther, { n });
+}
+
+export { formatUtc };
 
 export function instructionSteps(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -138,17 +131,17 @@ export function descriptionParagraphs(text: string | null): string[] {
     .filter(Boolean);
 }
 
-export const JOIN_GENERIC_ERROR = "Could not join the challenge. Please try again.";
-
 /** Maps the machine-readable messages raised by join_challenge(). */
-export function joinErrorMessage(message: string | undefined): string {
+export function joinErrorMessage(message: string | undefined, d: Dict): string {
   const m = message ?? "";
-  if (m.includes("not_authenticated")) return "Log in to join this challenge.";
-  if (m.includes("challenge_not_found")) return "This challenge does not exist.";
-  if (m.includes("challenge_not_open")) return "This challenge is not open for entries.";
-  if (m.includes("challenge_full")) return "This challenge is full.";
-  if (m.includes("category_inactive")) {
-    return "This challenge's category is not active right now.";
+  for (const code of [
+    "not_authenticated",
+    "challenge_not_found",
+    "challenge_not_open",
+    "challenge_full",
+    "category_inactive",
+  ] as const) {
+    if (m.includes(code)) return d.joinErrors[code];
   }
-  return JOIN_GENERIC_ERROR;
+  return d.joinErrors.generic;
 }

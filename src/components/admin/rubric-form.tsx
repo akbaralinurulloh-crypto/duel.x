@@ -1,24 +1,26 @@
 "use client";
 
 import { useActionState } from "react";
-import { addRubricVersion } from "@/app/admin/actions";
+import { addRubricVersion } from "@/app/[lang]/admin/actions";
 import { FormAlert, SubmitButton, TextAreaField } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 
 export function RubricForm({ challengeId, initial }: { challengeId: string; initial: string }) {
+  const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(addRubricVersion, {});
   return (
     <form action={action} className="flex max-w-2xl flex-col gap-4">
       <input type="hidden" name="id" value={challengeId} />
       <FormAlert state={state} />
       <TextAreaField
-        label="Criteria"
+        label={d.admin.form.criteria}
         name="criteria"
         rows={6}
         defaultValue={state.values?.criteria ?? initial}
-        hint='One per line: key | Label | max points. Example: clarity | Clarity of the prompt | 10. Saving creates a new version; old versions are kept.'
+        hint={d.admin.form.criteriaHint}
       />
-      <SubmitButton pendingLabel="Saving…">Save as new version</SubmitButton>
+      <SubmitButton pendingLabel={d.admin.form.saving}>{d.admin.form.saveRubric}</SubmitButton>
     </form>
   );
 }

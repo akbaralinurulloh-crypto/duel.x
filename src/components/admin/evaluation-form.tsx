@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
-import { approveEvaluation, saveEvaluation } from "@/app/admin/actions";
+import { approveEvaluation, saveEvaluation } from "@/app/[lang]/admin/actions";
 import { ActionForm } from "@/components/admin/action-form";
 import { FormAlert, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 import type { RubricCriterion } from "@/lib/submissions";
 
 export function EvaluationForm({
@@ -23,6 +24,7 @@ export function EvaluationForm({
     feedback: string | null;
   } | null;
 }) {
+  const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(saveEvaluation, {});
   const locked = saved?.status === "approved";
 
@@ -55,7 +57,7 @@ export function EvaluationForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`${submissionId}-feedback`} className="text-sm font-medium">
-            Feedback for the participant
+            {d.admin.evaluation.feedback}
           </label>
           <textarea
             id={`${submissionId}-feedback`}
@@ -68,10 +70,10 @@ export function EvaluationForm({
           />
         </div>
         {locked ? (
-          <p className="text-sm text-muted">Approved. This evaluation can no longer be changed.</p>
+          <p className="text-sm text-muted">{d.admin.evaluation.locked}</p>
         ) : (
           <div>
-            <SubmitButton pendingLabel="Saving…">Save draft</SubmitButton>
+            <SubmitButton pendingLabel={d.admin.evaluation.saving}>{d.admin.evaluation.saveDraft}</SubmitButton>
           </div>
         )}
       </form>
@@ -80,8 +82,8 @@ export function EvaluationForm({
         <ActionForm
           action={approveEvaluation}
           hidden={{ evaluationId: saved.evaluationId, challengeId }}
-          label="Approve result"
-          pendingLabel="Approving…"
+          label={d.admin.evaluation.approve}
+          pendingLabel={d.admin.evaluation.approving}
         />
       ) : null}
     </div>

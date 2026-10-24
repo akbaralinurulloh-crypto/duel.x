@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 
 const inputClass =
   "w-full rounded-md border border-line bg-surface px-3 py-2.5 text-text placeholder:text-muted aria-[invalid=true]:border-red-400";
@@ -98,13 +99,14 @@ export function TextAreaField({
 export function SelectField({
   options,
   defaultValue,
-  placeholder = "Choose…",
+  placeholder,
   ...base
 }: BaseProps & {
   options: { value: string; label: string }[];
   defaultValue?: string;
   placeholder?: string;
 }) {
+  const { d } = useI18n();
   return (
     <Wrapper {...base}>
       <select
@@ -117,7 +119,7 @@ export function SelectField({
         className={inputClass}
       >
         <option value="" disabled>
-          {placeholder}
+          {placeholder ?? d.auth.chooseCategory}
         </option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>

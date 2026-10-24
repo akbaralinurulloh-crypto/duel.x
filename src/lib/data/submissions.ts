@@ -81,3 +81,45 @@ export async function listMyEvaluations(
     })),
   };
 }
+
+export type MyResultsSummary = { challenges: number; averagePercent: number | null };
+
+/**
+ * Approved results of the signed-in user (best percent per challenge).
+ * Row-level security only returns approved evaluations of completed challenges.
+ */
+export async function getMyResultsSummary(userId: string): Promise<Result<MyResultsSummary>> {
+  const supabase = await createClient();
+  const subs = await supabase
+    .from("submissions")
+    .select("id, challenge_id")
+    .eq("user_id", userId);
+  if (subs.error || !subs.data) return { ok: false };
+  if (subs.data.length === 0) return { ok: true, data: { challenges: 0, averagePercent: null } };
+
+  const evals = await supabase
+    .from("evaluations")
+    .select("submission_id, total, max_total")
+    .in("submission_id", subs.data.map((s) => s.id));
+  if (evals.error || !evals.data) return { ok: false };
+
+  const challengeOf = new Map(subs.data.map((s) => [s.id, s.challenge_id]));
+  const best = new Map<string, number>();
+  for (const e of evals.data) {
+    const challengeId = challengeOf.get(e.submission_id);
+    const max = Number(e.max_total);
+    if (!challengeId || !(max > 0)) continue;
+    const percent = (Number(e.total) / max) * 100;
+    best.set(challengeId, Math.max(best.get(challengeId) ?? 0, percent));
+  }
+  const values = [...best.values()];
+  return {
+    ok: true,
+    data: {
+      challenges: values.length,
+      averagePercent: values.length
+        ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10
+        : null,
+    },
+  };
+}

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
   challengeSchema,
   parseRubricText,
@@ -7,6 +8,8 @@ import {
   slugify,
   toUtcLocal,
 } from "./parse";
+
+const d = getDictionary("en");
 
 const base = {
   title: "Prompt Duel #1",
@@ -72,7 +75,7 @@ describe("challengeSchema", () => {
 
 describe("parseRubricText", () => {
   it("parses well-formed lines", () => {
-    const r = parseRubricText("clarity | Clarity | 10\nresult|Result quality|20.5");
+    const r = parseRubricText("clarity | Clarity | 10\nresult|Result quality|20.5", d);
     expect(r).toEqual({
       ok: true,
       criteria: [
@@ -82,12 +85,12 @@ describe("parseRubricText", () => {
     });
   });
   it("reports the first problem with a line number", () => {
-    expect(parseRubricText("")).toMatchObject({ ok: false });
-    expect(parseRubricText("a | A")).toMatchObject({ ok: false, error: expect.stringContaining("Line 1") });
-    expect(parseRubricText("Bad Key | A | 5")).toMatchObject({ ok: false });
-    expect(parseRubricText("a | A | 0")).toMatchObject({ ok: false });
-    expect(parseRubricText("a | A | x")).toMatchObject({ ok: false });
-    expect(parseRubricText("a | A | 5\na | B | 5")).toMatchObject({ ok: false, error: expect.stringContaining("duplicate") });
+    expect(parseRubricText("", d)).toMatchObject({ ok: false });
+    expect(parseRubricText("a | A", d)).toMatchObject({ ok: false, error: expect.stringContaining("Line 1") });
+    expect(parseRubricText("Bad Key | A | 5", d)).toMatchObject({ ok: false });
+    expect(parseRubricText("a | A | 0", d)).toMatchObject({ ok: false });
+    expect(parseRubricText("a | A | x", d)).toMatchObject({ ok: false });
+    expect(parseRubricText("a | A | 5\na | B | 5", d)).toMatchObject({ ok: false, error: expect.stringContaining("duplicate") });
   });
 });
 
@@ -98,15 +101,15 @@ describe("parseScores", () => {
   ];
   const getter = (m: Record<string, string>) => (n: string) => m[n] ?? "";
   it("accepts scores within range", () => {
-    expect(parseScores(getter({ score_a: "7.5", score_b: "0" }), criteria)).toEqual({
+    expect(parseScores(getter({ score_a: "7.5", score_b: "0" }), criteria, d)).toEqual({
       ok: true,
       scores: { a: 7.5, b: 0 },
     });
   });
   it("rejects missing, negative, too-high and non-numeric scores", () => {
-    expect(parseScores(getter({ score_a: "1" }), criteria).ok).toBe(false);
-    expect(parseScores(getter({ score_a: "-1", score_b: "1" }), criteria).ok).toBe(false);
-    expect(parseScores(getter({ score_a: "11", score_b: "1" }), criteria).ok).toBe(false);
-    expect(parseScores(getter({ score_a: "x", score_b: "1" }), criteria).ok).toBe(false);
+    expect(parseScores(getter({ score_a: "1" }), criteria, d).ok).toBe(false);
+    expect(parseScores(getter({ score_a: "-1", score_b: "1" }), criteria, d).ok).toBe(false);
+    expect(parseScores(getter({ score_a: "11", score_b: "1" }), criteria, d).ok).toBe(false);
+    expect(parseScores(getter({ score_a: "x", score_b: "1" }), criteria, d).ok).toBe(false);
   });
 });

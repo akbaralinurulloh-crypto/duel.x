@@ -1,12 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { submitSolution } from "@/app/challenges/submit-actions";
+import { submitSolution } from "@/app/[lang]/challenges/submit-actions";
 import { FormAlert, SubmitButton, TextAreaField } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
+import { fmt } from "@/lib/i18n/config";
 import { createClient } from "@/lib/supabase/client";
 import {
-  FILE_HINT,
   MAX_CONTENT_LENGTH,
   buildStoragePath,
   contentTypeFor,
@@ -22,12 +23,13 @@ export function SubmitForm({
   slug: string;
   userId: string;
 }) {
+  const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(async (prev, formData) => {
     const file = formData.get("file");
     formData.delete("file");
 
     if (file instanceof File && file.size > 0) {
-      const problem = validateFile(file);
+      const problem = validateFile(file, d);
       if (problem) return { error: problem, values: { content: String(formData.get("content") ?? "") } };
 
       const path = buildStoragePath(userId, challengeId, file.name, crypto.randomUUID().slice(0, 8));
@@ -36,7 +38,7 @@ export function SubmitForm({
         .upload(path, file, { contentType: contentTypeFor(file.name) ?? undefined, upsert: false });
       if (error) {
         return {
-          error: "The file could not be uploaded. Submissions may be closed, or the file was rejected.",
+          error: d.submit.uploadFailed,
           values: { content: String(formData.get("content") ?? "") },
         };
       }
@@ -54,15 +56,15 @@ export function SubmitForm({
       <input type="hidden" name="slug" value={slug} />
       <FormAlert state={state} />
       <TextAreaField
-        label="Your answer"
+        label={d.submit.answer}
         name="content"
         rows={8}
         defaultValue={state.values?.content}
-        hint={`Up to ${MAX_CONTENT_LENGTH.toLocaleString("en-US")} characters.`}
+        hint={fmt(d.submit.answerHint, { max: MAX_CONTENT_LENGTH.toLocaleString("en-US") })}
       />
       <div className="flex flex-col gap-1.5">
         <label htmlFor="file" className="text-sm font-medium">
-          Attachment (optional)
+          {d.submit.attachment}
         </label>
         <input
           id="file"
@@ -71,12 +73,12 @@ export function SubmitForm({
           accept=".pdf,.txt,.md,.csv,.json,.zip,.png,.jpg,.jpeg"
           className="text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-surface file:px-3 file:py-2 file:text-text"
         />
-        <p className="text-sm text-muted">{FILE_HINT}</p>
+        <p className="text-sm text-muted">{d.submit.fileHint}</p>
       </div>
       <p className="text-sm text-muted">
-        Each submission is saved as a new version and cannot be edited afterwards.
+        {d.submit.versionNote}
       </p>
-      <SubmitButton pendingLabel="Submitting…">Submit</SubmitButton>
+      <SubmitButton pendingLabel={d.submit.submitting}>{d.submit.submit}</SubmitButton>
     </form>
   );
 }

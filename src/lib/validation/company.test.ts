@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { COMPANY_GENERIC_ERROR, companyErrorMessage, companyRequestSchema } from "./company";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { companyErrorMessage, companyRequestSchema } from "./company";
+
+const d = getDictionary("en");
 
 const valid = {
   companyName: "Acme",
@@ -25,8 +28,8 @@ describe("companyRequestSchema", () => {
 
 describe("companyErrorMessage", () => {
   it("maps known codes and hides unknown errors", () => {
-    expect(companyErrorMessage("rate_limited")).toMatch(/Too many/);
-    expect(companyErrorMessage("invalid_request")).toMatch(/check your details/);
-    expect(companyErrorMessage("relation x does not exist")).toBe(COMPANY_GENERIC_ERROR);
+    expect(companyErrorMessage("rate_limited", d)).toMatch(/Too many/);
+    expect(companyErrorMessage("invalid_request", d)).toMatch(/check your details/);
+    expect(companyErrorMessage("relation x does not exist", d)).toBe(d.companies.generic);
   });
 });

@@ -5,23 +5,25 @@ import { useActionState } from "react";
 import { forgotPassword } from "@/app/auth/actions";
 import { Field, FormAlert, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ForgotPasswordForm() {
+  const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(forgotPassword, {});
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
       <FormAlert state={state} />
       <Field
-        label="Email"
+        label={d.auth.email}
         name="email"
         type="email"
         autoComplete="email"
         defaultValue={state.values?.email}
         errors={state.fieldErrors?.email}
       />
-      <SubmitButton pendingLabel="Sending…">Send reset link</SubmitButton>
+      <SubmitButton pendingLabel={d.auth.sending}>{d.auth.sendReset}</SubmitButton>
       <Link href="/login" className="text-sm text-muted underline underline-offset-4">
-        Back to log in
+        {d.auth.backToLogin}
       </Link>
     </form>
   );

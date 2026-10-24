@@ -13,6 +13,7 @@ type BoardRaw = {
 type PortfolioRaw = {
   challenge_slug: string;
   challenge_title: string;
+  category_slug: string;
   category_name: string;
   percent: number | string;
   ended_at: string;
@@ -53,6 +54,7 @@ export type PublicProfile = {
   bio: string | null;
   createdAt: string;
   categoryName: string | null;
+  categorySlug: string | null;
   isPublic: boolean;
 };
 
@@ -67,13 +69,15 @@ export async function getPublicProfile(username: string): Promise<Result<PublicP
   if (!data) return { ok: true, data: null };
 
   let categoryName: string | null = null;
+  let categorySlug: string | null = null;
   if (data.primary_category_id) {
     const { data: cat } = await supabase
       .from("categories")
-      .select("name")
+      .select("slug, name")
       .eq("id", data.primary_category_id)
       .maybeSingle();
     categoryName = cat?.name ?? null;
+    categorySlug = cat?.slug ?? null;
   }
   return {
     ok: true,
@@ -83,6 +87,7 @@ export async function getPublicProfile(username: string): Promise<Result<PublicP
       bio: data.bio,
       createdAt: data.created_at,
       categoryName,
+      categorySlug,
       isPublic: data.is_public,
     },
   };
@@ -91,6 +96,7 @@ export async function getPublicProfile(username: string): Promise<Result<PublicP
 export type PortfolioItem = {
   challengeSlug: string;
   challengeTitle: string;
+  categorySlug: string;
   categoryName: string;
   percent: number;
   endedAt: string;
@@ -105,6 +111,7 @@ export async function getPortfolio(username: string): Promise<Result<PortfolioIt
     data: (data as PortfolioRaw[]).map((r) => ({
       challengeSlug: r.challenge_slug,
       challengeTitle: r.challenge_title,
+      categorySlug: r.category_slug,
       categoryName: r.category_name,
       percent: Number(r.percent),
       endedAt: r.ended_at,

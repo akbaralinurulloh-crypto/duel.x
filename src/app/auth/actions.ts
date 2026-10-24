@@ -5,11 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getOrigin } from "@/lib/auth/origin";
 import { safeNextPath } from "@/lib/auth/redirect";
-import {
-  GENERIC_ERROR_MESSAGE,
-  NOT_CONFIGURED_MESSAGE,
-  authErrorMessage,
-} from "@/lib/auth/errors";
+import { authErrorMessage } from "@/lib/auth/errors";
+import { getRequestDict } from "@/lib/i18n/server";
 import { formString, type FormState } from "@/lib/forms";
 import {
   fieldErrors,
@@ -25,6 +22,7 @@ export async function register(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const { d } = await getRequestDict();
   const raw = {
     email: formString(formData, "email"),
     password: formString(formData, "password"),
@@ -42,12 +40,12 @@ export async function register(
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) {
     return {
-      error: "Please fix the highlighted fields.",
-      fieldErrors: fieldErrors(parsed.error),
+      error: d.common.fixFields,
+      fieldErrors: fieldErrors(parsed.error, d.validation),
       values,
     };
   }
-  if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED_MESSAGE, values };
+  if (!isSupabaseConfigured()) return { error: d.common.notConfigured, values };
 
   const input = parsed.data;
   let signedIn = false;
@@ -61,11 +59,11 @@ export async function register(
       .eq("slug", input.primaryCategorySlug)
       .eq("is_active", true)
       .maybeSingle();
-    if (categoryError) return { error: GENERIC_ERROR_MESSAGE, values };
+    if (categoryError) return { error: d.common.generic, values };
     if (!category) {
       return {
-        error: "Please fix the highlighted fields.",
-        fieldErrors: { primaryCategorySlug: ["Choose a main category."] },
+        error: d.common.fixFields,
+        fieldErrors: { primaryCategorySlug: [d.validation.category_required] },
         values,
       };
     }
@@ -74,11 +72,11 @@ export async function register(
       "is_username_available",
       { candidate: input.username },
     );
-    if (availableError) return { error: GENERIC_ERROR_MESSAGE, values };
+    if (availableError) return { error: d.common.generic, values };
     if (available === false) {
       return {
-        error: "Please fix the highlighted fields.",
-        fieldErrors: { username: ["That username is taken."] },
+        error: d.common.fixFields,
+        fieldErrors: { username: [d.auth.usernameTaken] },
         values,
       };
     }
@@ -96,19 +94,18 @@ export async function register(
         emailRedirectTo: `${origin}/auth/callback?next=/dashboard`,
       },
     });
-    if (error) return { error: authErrorMessage(error, "register"), values };
+    if (error) return { error: authErrorMessage(error, "register", d), values };
 
     signedIn = Boolean(data.session);
   } catch {
-    return { error: GENERIC_ERROR_MESSAGE, values };
+    return { error: d.common.generic, values };
   }
 
   if (signedIn) redirect("/dashboard");
 
   // Email confirmation is enabled: no session until the link is clicked.
   return {
-    message:
-      "Check your inbox: we sent a confirmation link. Open it to finish creating your account.",
+    message: d.auth.checkInbox,
   };
 }
 
@@ -116,6 +113,7 @@ export async function login(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const { d } = await getRequestDict();
   const raw = {
     email: formString(formData, "email"),
     password: formString(formData, "password"),
@@ -126,19 +124,19 @@ export async function login(
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
-      error: "Please fix the highlighted fields.",
-      fieldErrors: fieldErrors(parsed.error),
+      error: d.common.fixFields,
+      fieldErrors: fieldErrors(parsed.error, d.validation),
       values,
     };
   }
-  if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED_MESSAGE, values };
+  if (!isSupabaseConfigured()) return { error: d.common.notConfigured, values };
 
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
-    if (error) return { error: authErrorMessage(error, "login"), values };
+    if (error) return { error: authErrorMessage(error, "login", d), values };
   } catch {
-    return { error: GENERIC_ERROR_MESSAGE, values };
+    return { error: d.common.generic, values };
   }
 
   redirect(next);
@@ -156,18 +154,19 @@ export async function forgotPassword(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const { d } = await getRequestDict();
   const raw = { email: formString(formData, "email") };
   const values = { email: raw.email };
 
   const parsed = forgotPasswordSchema.safeParse(raw);
   if (!parsed.success) {
     return {
-      error: "Please fix the highlighted fields.",
-      fieldErrors: fieldErrors(parsed.error),
+      error: d.common.fixFields,
+      fieldErrors: fieldErrors(parsed.error, d.validation),
       values,
     };
   }
-  if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED_MESSAGE, values };
+  if (!isSupabaseConfigured()) return { error: d.common.notConfigured, values };
 
   try {
     const supabase = await createClient();
@@ -176,15 +175,14 @@ export async function forgotPassword(
       parsed.data.email,
       { redirectTo: `${origin}/auth/callback?next=/reset-password` },
     );
-    if (error) return { error: authErrorMessage(error, "forgot"), values };
+    if (error) return { error: authErrorMessage(error, "forgot", d), values };
   } catch {
-    return { error: GENERIC_ERROR_MESSAGE, values };
+    return { error: d.common.generic, values };
   }
 
   // Same answer whether or not the address has an account (no enumeration).
   return {
-    message:
-      "If an account exists for that email, we sent a link to reset the password.",
+    message: d.auth.resetSent,
   };
 }
 
@@ -192,6 +190,7 @@ export async function resetPassword(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const { d } = await getRequestDict();
   const raw = {
     password: formString(formData, "password"),
     confirmPassword: formString(formData, "confirmPassword"),
@@ -200,26 +199,26 @@ export async function resetPassword(
   const parsed = resetPasswordSchema.safeParse(raw);
   if (!parsed.success) {
     return {
-      error: "Please fix the highlighted fields.",
-      fieldErrors: fieldErrors(parsed.error),
+      error: d.common.fixFields,
+      fieldErrors: fieldErrors(parsed.error, d.validation),
     };
   }
-  if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED_MESSAGE };
+  if (!isSupabaseConfigured()) return { error: d.common.notConfigured };
 
   try {
     const supabase = await createClient();
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) {
       return {
-        error: "This reset link is invalid or has expired. Request a new one.",
+        error: d.auth.resetInvalid,
       };
     }
     const { error } = await supabase.auth.updateUser({
       password: parsed.data.password,
     });
-    if (error) return { error: authErrorMessage(error, "reset") };
+    if (error) return { error: authErrorMessage(error, "reset", d) };
   } catch {
-    return { error: GENERIC_ERROR_MESSAGE };
+    return { error: d.common.generic };
   }
 
   redirect("/dashboard");

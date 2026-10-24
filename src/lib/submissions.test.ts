@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
   MAX_FILE_BYTES,
-  SUBMIT_GENERIC_ERROR,
   buildStoragePath,
   contentTypeFor,
   parseCriteria,
@@ -11,17 +11,19 @@ import {
   validateFile,
 } from "./submissions";
 
+const d = getDictionary("en");
+
 describe("validateFile", () => {
   it("accepts allowed types within the size limit", () => {
-    expect(validateFile({ name: "report.PDF", size: 1000 })).toBeNull();
-    expect(validateFile({ name: "notes.md", size: MAX_FILE_BYTES })).toBeNull();
+    expect(validateFile({ name: "report.PDF", size: 1000 }, d)).toBeNull();
+    expect(validateFile({ name: "notes.md", size: MAX_FILE_BYTES }, d)).toBeNull();
   });
   it("rejects empty, oversized and unknown types", () => {
-    expect(validateFile({ name: "a.pdf", size: 0 })).toMatch(/empty/);
-    expect(validateFile({ name: "a.pdf", size: MAX_FILE_BYTES + 1 })).toMatch(/10 MB/);
-    expect(validateFile({ name: "run.exe", size: 10 })).toMatch(/not allowed/);
-    expect(validateFile({ name: "noext", size: 10 })).toMatch(/not allowed/);
-    expect(validateFile({ name: "x.constructor", size: 10 })).toMatch(/not allowed/);
+    expect(validateFile({ name: "a.pdf", size: 0 }, d)).toMatch(/empty/);
+    expect(validateFile({ name: "a.pdf", size: MAX_FILE_BYTES + 1 }, d)).toMatch(/10 MB/);
+    expect(validateFile({ name: "run.exe", size: 10 }, d)).toMatch(/not allowed/);
+    expect(validateFile({ name: "noext", size: 10 }, d)).toMatch(/not allowed/);
+    expect(validateFile({ name: "x.constructor", size: 10 }, d)).toMatch(/not allowed/);
   });
   it("maps extensions to content types", () => {
     expect(contentTypeFor("a.jpeg")).toBe("image/jpeg");
@@ -45,15 +47,15 @@ describe("safeFileName / buildStoragePath", () => {
 
 describe("submitErrorMessage", () => {
   it("maps database codes to friendly text", () => {
-    expect(submitErrorMessage("attempt_limit_reached")).toMatch(/attempts/);
-    expect(submitErrorMessage("ERROR: submissions_closed")).toMatch(/closed/);
-    expect(submitErrorMessage("not_participant")).toMatch(/Join/);
+    expect(submitErrorMessage("attempt_limit_reached", d)).toMatch(/attempts/);
+    expect(submitErrorMessage("ERROR: submissions_closed", d)).toMatch(/closed/);
+    expect(submitErrorMessage("not_participant", d)).toMatch(/Join/);
   });
   it("never leaks unknown database errors", () => {
-    expect(submitErrorMessage('duplicate key value violates unique constraint "x"')).toBe(
-      SUBMIT_GENERIC_ERROR,
+    expect(submitErrorMessage('duplicate key value violates unique constraint "x"', d)).toBe(
+      d.submitErrors.generic,
     );
-    expect(submitErrorMessage(undefined)).toBe(SUBMIT_GENERIC_ERROR);
+    expect(submitErrorMessage(undefined, d)).toBe(d.submitErrors.generic);
   });
 });
 

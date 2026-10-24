@@ -1,3 +1,7 @@
+import type { Dict } from "@/lib/i18n/dictionaries";
+
+// English constants are kept for the operator-only admin area. Public pages use
+// the dictionary (d.common.*).
 export const NOT_CONFIGURED_MESSAGE =
   "Authentication is not configured on this deployment yet.";
 
@@ -10,32 +14,32 @@ type AuthErrorLike = { status?: number; code?: string; message?: string };
 export function authErrorMessage(
   error: AuthErrorLike,
   context: "login" | "register" | "reset" | "forgot",
+  d: Dict,
 ): string {
   if (error.status === 429 || error.code === "over_request_rate_limit") {
-    return "Too many attempts. Please wait a few minutes and try again.";
+    return d.auth.tooManyAttempts;
   }
   if (error.code === "over_email_send_rate_limit") {
-    return "Too many emails requested. Please wait a few minutes and try again.";
+    return d.auth.tooManyEmails;
   }
 
   switch (error.code) {
     case "invalid_credentials":
-      return "Invalid email or password.";
+      return d.auth.invalidCredentials;
     case "email_not_confirmed":
-      return "Please confirm your email first. Check your inbox for the link.";
+      return d.auth.emailNotConfirmed;
     case "user_already_exists":
     case "email_exists":
-      return "An account with this email already exists. Try logging in instead.";
+      return d.auth.userExists;
     case "weak_password":
-      return error.message ?? "That password is too weak. Try a longer one.";
+      // Supabase's own text is English; ours is translated.
+      return d.auth.weakPassword;
     case "same_password":
-      return "Choose a password different from your current one.";
+      return d.auth.samePassword;
     case "session_not_found":
     case "refresh_token_not_found":
-      return context === "reset"
-        ? "This reset link is invalid or has expired. Request a new one."
-        : GENERIC_ERROR_MESSAGE;
+      return context === "reset" ? d.auth.resetInvalid : d.common.generic;
     default:
-      return GENERIC_ERROR_MESSAGE;
+      return d.common.generic;
   }
 }

@@ -5,8 +5,10 @@ import { useActionState } from "react";
 import { login } from "@/app/auth/actions";
 import { Field, FormAlert, SubmitButton } from "@/components/form";
 import type { FormState } from "@/lib/forms";
+import { useI18n } from "@/lib/i18n/client";
 
 export function LoginForm({ next, notice }: { next: string; notice?: string }) {
+  const { d } = useI18n();
   const [state, action] = useActionState<FormState, FormData>(login, {});
   return (
     <form action={action} className="flex flex-col gap-4" noValidate>
@@ -18,7 +20,7 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
       <FormAlert state={state} />
       <input type="hidden" name="next" value={next} />
       <Field
-        label="Email"
+        label={d.auth.email}
         name="email"
         type="email"
         autoComplete="email"
@@ -26,19 +28,19 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
         errors={state.fieldErrors?.email}
       />
       <Field
-        label="Password"
+        label={d.auth.password}
         name="password"
         type="password"
         autoComplete="current-password"
         errors={state.fieldErrors?.password}
       />
-      <SubmitButton pendingLabel="Logging in…">Log in</SubmitButton>
+      <SubmitButton pendingLabel={d.auth.loggingIn}>{d.auth.loginButton}</SubmitButton>
       <div className="flex justify-between text-sm text-muted">
         <Link href="/forgot-password" className="underline underline-offset-4">
-          Forgot password?
+          {d.auth.forgotLink}
         </Link>
         <Link href="/register" className="underline underline-offset-4">
-          Create an account
+          {d.auth.createLink}
         </Link>
       </div>
     </form>

@@ -11,8 +11,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = siteUrl();
   if (!origin) return [];
 
-  const entries: MetadataRoute.Sitemap = ["", "/challenges", "/categories", "/leaderboard", "/companies"].map(
-    (path) => ({ url: `${origin}${path}` }),
+  const entries: MetadataRoute.Sitemap = ["", "/about", "/challenges", "/categories", "/leaderboard", "/companies"].map(
+    (path) => ({
+      url: `${origin}${path}`,
+      alternates: { languages: { en: `${origin}/en${path}`, uz: `${origin}/uz${path}` } },
+    }),
   );
   if (!isSupabaseConfigured()) return entries;
 
