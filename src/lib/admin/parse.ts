@@ -66,6 +66,7 @@ export const challengeSchema = z
     endsAt: z.string(),
     maxParticipants: z.string().trim(),
     maxSubmissions: z.string().trim(),
+    aiBriefGuide: z.string().trim().max(4000, "guide_max").optional().default(""),
   })
   .transform((v, ctx) => {
     const issue = (path: string, message: string) =>
@@ -107,6 +108,7 @@ export const challengeSchema = z
       endsAt: endsAt ?? "",
       maxParticipants,
       maxSubmissions: subs,
+      aiBriefGuide: v.aiBriefGuide || null,
     };
   });
 

@@ -40,7 +40,7 @@ const uuid = z.uuid();
 function challengeFormValues(formData: FormData) {
   const keys = [
     "title", "slug", "categorySlug", "summary", "description", "instructions",
-    "difficulty", "evaluationMethod", "startsAt", "endsAt", "maxParticipants", "maxSubmissions",
+    "difficulty", "evaluationMethod", "startsAt", "endsAt", "maxParticipants", "maxSubmissions", "aiBriefGuide",
   ];
   return Object.fromEntries(keys.map((k) => [k, formString(formData, k)]));
 }
@@ -83,6 +83,7 @@ export async function createChallenge(_prev: FormState, formData: FormData): Pro
         ends_at: input.endsAt,
         max_participants: input.maxParticipants,
         max_submissions: input.maxSubmissions,
+        ai_brief_guide: input.aiBriefGuide,
         status: "draft",
       })
       .select("id")
@@ -143,6 +144,7 @@ export async function updateChallenge(_prev: FormState, formData: FormData): Pro
         ends_at: input.endsAt,
         max_participants: input.maxParticipants,
         max_submissions: input.maxSubmissions,
+        ai_brief_guide: input.aiBriefGuide,
       })
       .eq("id", id)
       .in("status", ["draft", "published"])

@@ -21,6 +21,7 @@ export type ChallengeFormInitial = {
   endsAt: string;
   maxParticipants: string;
   maxSubmissions: string;
+  aiBriefGuide: string;
 };
 
 export function ChallengeForm({
@@ -86,6 +87,7 @@ export function ChallengeForm({
         <Field label={d.admin.form.ends} name="endsAt" type="datetime-local" defaultValue={v("endsAt")} errors={e.endsAt} />
         <Field label={d.admin.form.maxParticipants} name="maxParticipants" required={false} defaultValue={v("maxParticipants")} errors={e.maxParticipants} hint={d.admin.form.maxParticipantsHint} />
         <Field label={d.admin.form.attempts} name="maxSubmissions" required={false} defaultValue={v("maxSubmissions") || "3"} errors={e.maxSubmissions} hint={d.admin.form.attemptsHint} />
+      <TextAreaField label={d.ai.guide} name="aiBriefGuide" rows={4} defaultValue={v("aiBriefGuide")} errors={e.aiBriefGuide} hint={d.ai.guideHint} />
       </div>
       <SubmitButton pendingLabel={d.admin.form.saving}>{mode === "create" ? d.admin.form.createDraft : d.admin.form.saveChanges}</SubmitButton>
     </form>

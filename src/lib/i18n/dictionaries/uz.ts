@@ -233,6 +233,27 @@ export const uz: Dict = {
     version: "{n}-versiya",
   },
 
+  ai: {
+    yourTask: "Sizning topshirig‘ingiz",
+    taskNote: "Bu topshiriq qo‘shilganingizda AI tomonidan faqat siz uchun yozilgan.",
+    taskPending: "Topshirig‘ingiz hali yaratilmagan.",
+    getTask: "Topshirig‘imni olish",
+    gettingTask: "Topshiriq yozilmoqda…",
+    taskFailed: "Hozir topshiriq yaratib bo‘lmadi. Bir daqiqadan keyin qayta urinib ko‘ring.",
+    notConfigured: "Saytda AI hali sozlanmagan. Tashkilotchiga yoqish so‘ralgan.",
+    preparing: "Video kadrlari tayyorlanmoqda…",
+    uploading: "Yuklanmoqda…",
+    analyzing: "AI ishingizni ko‘rib chiqmoqda. Bir daqiqagacha ketishi mumkin…",
+    analysisSaved: "AI baholashi saqlandi. Natijalar e’lon qilinishidan oldin tashkilotchi tasdiqlaydi.",
+    analysisSkipped: "Yuborildi. Bu musobaqa uchun AI baholash hozircha mavjud emas, tashkilotchi o‘zi baholaydi.",
+    analysisFailed: "Yuborildi, lekin AI baholashi bajarilmadi. Tashkilotchi o‘zi baholaydi.",
+    alreadyAnalyzed: "Bu ish allaqachon ko‘rib chiqilgan.",
+    guide: "AI topshiriq yo‘riqnomasi",
+    guideHint: "Ixtiyoriy. AI har bir ishtirokchi uchun qanday shaxsiy topshiriq yozishini ayting, masalan, turli mahsulotlar reklamasi. Bu maxfiy emas.",
+    aiDraft: "AI qoralamasi",
+    humanDraft: "Qoralama",
+  },
+
   submit: {
     answer: "Javobingiz",
     answerHint: "{max} belgigacha.",

@@ -118,6 +118,7 @@ async function Manage({ params }: { params: PageProps<"/[lang]/admin/challenges/
               endsAt: toUtcLocal(c.ends_at),
               maxParticipants: c.max_participants == null ? "" : String(c.max_participants),
               maxSubmissions: String(c.max_submissions),
+              aiBriefGuide: (c.ai_brief_guide as string | null) ?? "",
             }}
           />
         ) : (

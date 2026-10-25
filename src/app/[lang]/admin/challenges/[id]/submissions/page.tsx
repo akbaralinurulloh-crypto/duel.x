@@ -55,11 +55,13 @@ async function Submissions({ params }: { params: PageProps<"/[lang]/admin/challe
   const evals = rows.length
     ? await supabase
         .from("evaluations")
-        .select("id, submission_id, status, scores, feedback, total, max_total")
+        .select("id, submission_id, status, scores, feedback, total, max_total, source")
         .in("submission_id", rows.map((r) => r.id))
     : { data: [], error: null };
   if (evals.error) return <LoadError>{t.evalLoadError}</LoadError>;
   const evalBySubmission = new Map((evals.data ?? []).map((e) => [e.submission_id, e]));
+  // Best AI/human score first so the ranking is visible at a glance.
+  rows.sort((a, b) => Number(evalBySubmission.get(b.id)?.total ?? -1) - Number(evalBySubmission.get(a.id)?.total ?? -1));
 
   const criteria = parseCriteria(rubric.data?.criteria);
   const evaluable = ["closed", "under_review"].includes(challenge.data.status);
@@ -98,7 +100,7 @@ async function Submissions({ params }: { params: PageProps<"/[lang]/admin/challe
                     </span>
                     <span className="text-sm text-muted">
                       v{s.version} · {formatUtc(s.created_at, lang)} ·{" "}
-                      {ev ? `${ev.status === "approved" ? t.approved : t.draft} ${Number(ev.total)}/${Number(ev.max_total)}` : t.notEvaluated}
+                      {ev ? `${ev.status === "approved" ? t.approved : ev.source === "ai" ? d.ai.aiDraft : t.draft} ${Number(ev.total)}/${Number(ev.max_total)}` : t.notEvaluated}
                     </span>
                   </summary>
                   <div className="flex flex-col gap-5 border-t border-line p-5">

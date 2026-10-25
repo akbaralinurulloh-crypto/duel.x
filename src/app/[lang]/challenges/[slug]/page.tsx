@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { createClient } from "@/lib/supabase/server";
 import { FormSkeleton, LoadError, NotConfigured } from "@/components/auth/auth-card";
 import { StatusBadge } from "@/components/challenges/challenge-card";
 import { JoinForm } from "@/components/challenges/join-form";
 import { SubmitForm } from "@/components/challenges/submit-form";
+import { BriefButton } from "@/components/challenges/brief-button";
 import {
   descriptionParagraphs,
   difficultyLabel,
@@ -27,6 +29,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const generateMetadata = (props: PageProps<"/[lang]/challenges/[slug]">) =>
   localizedMetadata(props.params, (d) => ({ title: d.challenge.title }));
+
+// Server actions on this page (AI review of a submission) can take up to a minute.
+export const maxDuration = 60;
 
 export default function ChallengePage({ params }: PageProps<"/[lang]/challenges/[slug]">) {
   return (
@@ -218,6 +223,15 @@ async function SubmissionArea({
   const subs = await listMySubmissions(c.id, userId);
   if (!subs.ok) return <LoadError>{d.challenge.submissionsLoadError}</LoadError>;
 
+  const supabase = await createClient();
+  const { data: partRow } = await supabase
+    .from("challenge_participants")
+    .select("brief")
+    .eq("challenge_id", c.id)
+    .eq("user_id", userId)
+    .maybeSingle();
+  const brief = (partRow?.brief as string | null) ?? null;
+
   const evals = await listMyEvaluations(subs.data.map((s) => s.id));
   const results = evals.ok ? evals.data : [];
   const best = results.reduce<(typeof results)[number] | null>(
@@ -232,6 +246,20 @@ async function SubmissionArea({
 
   return (
     <div className="flex flex-col gap-6 border-t border-line pt-6">
+      <section className="rounded-md border border-lime/40 bg-lime/5 p-4">
+        <h3 className="text-lg font-semibold">{d.ai.yourTask}</h3>
+        {brief ? (
+          <>
+            <p className="mt-1 text-xs text-muted">{d.ai.taskNote}</p>
+            <p className="mt-3 whitespace-pre-wrap break-words">{brief}</p>
+          </>
+        ) : (
+          <div className="mt-2">
+            <BriefButton challengeId={c.id} slug={c.slug} />
+          </div>
+        )}
+      </section>
+
       <h3 className="text-lg font-semibold">{d.challenge.yourSubmissions}</h3>
 
       {best ? (

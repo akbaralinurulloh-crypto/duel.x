@@ -39,7 +39,7 @@ async function Form({ d }: { d: Dict }) {
       categories={data}
       initial={{
         title: "", slug: "", categorySlug: "", summary: "", description: "", instructions: "",
-        difficulty: "", evaluationMethod: "", startsAt: "", endsAt: "", maxParticipants: "", maxSubmissions: "3",
+        difficulty: "", evaluationMethod: "", startsAt: "", endsAt: "", maxParticipants: "", maxSubmissions: "3", aiBriefGuide: "",
       }}
     />
   );

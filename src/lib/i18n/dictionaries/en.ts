@@ -200,6 +200,27 @@ export const en = {
     version: "Version {n}",
   },
 
+  ai: {
+    yourTask: "Your task",
+    taskNote: "This task was written for you by AI when you joined. It is yours alone.",
+    taskPending: "Your task has not been created yet.",
+    getTask: "Get my task",
+    gettingTask: "Writing your task…",
+    taskFailed: "Could not create your task right now. Try again in a minute.",
+    notConfigured: "AI is not set up on this site yet. The organizer has been asked to enable it.",
+    preparing: "Preparing video frames…",
+    uploading: "Uploading…",
+    analyzing: "AI is reviewing your work. This can take up to a minute…",
+    analysisSaved: "AI review saved. The organizer approves results before they are published.",
+    analysisSkipped: "Submitted. AI review is not available for this challenge yet; an organizer will evaluate it.",
+    analysisFailed: "Submitted, but the AI review failed. An organizer will evaluate it.",
+    alreadyAnalyzed: "This submission was already reviewed.",
+    guide: "AI task guidance",
+    guideHint: "Optional. Tell the AI what kind of personal task to write for each participant, e.g. different products to advertise. Not secret.",
+    aiDraft: "AI draft",
+    humanDraft: "Draft",
+  },
+
   submit: {
     answer: "Your answer",
     answerHint: "Up to {max} characters.",

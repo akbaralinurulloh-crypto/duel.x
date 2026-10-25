@@ -378,3 +378,16 @@ describe("audit log", () => {
     await expect(db.query("select public.write_audit('x','y',null)")).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("AI layer functions", () => {
+  it("are not executable by authenticated users", async () => {
+    await asUser(db, ALICE);
+    await expect(
+      db.query("select public.ai_save_brief(gen_random_uuid(), gen_random_uuid(), 'x')"),
+    ).rejects.toThrow(/permission denied/i);
+    await expect(
+      db.query("select public.ai_save_evaluation(gen_random_uuid(), '{}'::jsonb, 'x')"),
+    ).rejects.toThrow(/permission denied/i);
+    await asSuperuser(db);
+  });
+});
