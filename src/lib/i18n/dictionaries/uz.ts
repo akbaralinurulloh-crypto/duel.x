@@ -237,7 +237,7 @@ export const uz: Dict = {
     answer: "Javobingiz",
     answerHint: "{max} belgigacha.",
     attachment: "Biriktirilgan fayl (ixtiyoriy)",
-    fileHint: "PDF, TXT, MD, CSV, JSON, ZIP, PNG yoki JPG, 25 MB gacha.",
+    fileHint: "PDF, TXT, MD, CSV, JSON, ZIP, PNG, JPG, MP4, MOV yoki WEBM, 50 MB gacha.",
     versionNote:
       "Har bir yechim yangi versiya sifatida saqlanadi va keyin tahrirlab bo‘lmaydi.",
     submit: "Yuborish",
@@ -246,7 +246,7 @@ export const uz: Dict = {
     uploadFailed:
       "Faylni yuklab bo‘lmadi. Yechim qabul qilish yopilgan yoki fayl rad etilgan bo‘lishi mumkin.",
     fileEmpty: "Tanlangan fayl bo‘sh.",
-    fileTooBig: "Fayl 25 MB dan katta.",
+    fileTooBig: "Fayl 50 MB dan katta.",
     fileType: "Bu fayl turiga ruxsat yo‘q. Ruxsat etilgan: {hint}",
     writeAnswer: "Javobingizni yozing.",
     tooLong: "Javobingiz juda uzun.",
